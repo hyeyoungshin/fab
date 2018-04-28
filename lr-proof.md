@@ -55,30 +55,32 @@ $\begin{array}{l c l}
 
 $\begin{array}{l c l}
   v    & ::= & 1 \mid true \mid false \mid \lambda~x:t.e \mid (v,v) \mid inl~v \mid inr~v \mid fold~v\\[1em]
-  E    & ::= & [.] \mid if~E~e~e \mid E~e \mid v~E \mid (E,e) \mid (v,E) \mid E.1 \mid E.2 \mid inl~E \mid inr~E \mid case~E~of~inl~x \Rightarrow e; inr~x \Rightarrow e\\[1em]
-       &     &\mid fold~E \mid unfold~E\\[1em]
+  E    & ::= & [.] \mid if~E~e~e \mid E~e \mid v~E \mid (E,e) \mid (v,E) \mid E.1 \mid E.2 \mid inl~E \mid inr~E \mid \\
+       &     & case~E~of~inl~x \Rightarrow e; inr~x \Rightarrow e \mid fold~E \mid unfold~E\\[1em]
 \end{array}$
 
-\begin{equation*}
-  \infer[\mathsf{\text{[E-EVAL]}}]{E[e] \mapsto E[e']}{e \mapsto_v e'}
-\end{equation*}
+\[
+\frac{e \mapsto_v e'}{ E[e] \mapsto_v E[e']}
+\]
 
-\begin{align*}
-(\lambda~x:\tau.e)v &\mapsto_v e[v/x] &\text{[E-BETA]}\\
-if~true~e_1~e_2 &\mapsto_v e_1 &\text{[E-IFT]}\\
-if~false~e_1~e_2 &\mapsto_v e_2 &\text{[E-IFF]}\\
-(v_1, v_2).1 &\mapsto_v v_1 &\text{[E-FST]}\\
-(v_1, v_2).2 &\mapsto_v v_2 &\text{[E-SND]}\\
-case~inl~v~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2 &\mapsto_v e_1[v/x_1] &\text{[E-INL]}\\
-case~inr~v~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2 &\mapsto_v e_2[v/x_2] &\text{[E-INR]}\\
-unfold (fold~v) &\mapsto_v v &\text{[E-UNFOLDFOLD]}
-\end{align*}
 
-\newpage
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{THEOREM [TYPE SOUNDNESS]}
+$(\lambda~x:\tau.e)v \mapsto_v e[v/x]$ [E-BETA]}  
+
+$if~true~e_1~e_2 \mapsto_v e_1$ [E-IFT]  
+
+$if~false~e_1~e_2 \mapsto_v e_2$ [E-IFF]  
+
+$(v_1, v_2).1 \mapsto_v v_1$ [E-PROJ1]  
+
+(v_1, v_2).2 \mapsto_v v_2 [E-PROJ2]  
+
+$case~inl~v~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2 \mapsto_v e_1[v/x_1]$ [E-INL]  
+
+$case~inr~v~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2 \mapsto_v e_2[v/x_2]$ [E-INR]  
+
+$unfold (fold~v) \mapsto_v v$ [E-UNFF]  
+
+## THEOREM [TYPE SOUNDNESS]
 If $\cdot \vdash e : \tau$ and $e \mapsto^* e'$, then either $val(e')$ or there exists an $e''$ such that $e' \mapsto e''$.
 
 \begin{proof}
