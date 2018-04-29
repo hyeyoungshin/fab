@@ -206,8 +206,10 @@ Then there are two cases to consider: $e'$ is either $\irred(e')$ or $\neg \irre
 + $irred (e')$:
   The definition of $\mathcal{E}_k [\tau]$ tells us $e' \in \mathcal{V}_{k-j} [\tau]$. So $val(e')$.
 
-We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.  
+We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
+
 + **Case $\frac{}{\Gamma \vdash 1 : unit}$** :  
+
   Suppose $\Gamma \vdash 1 : unit$.  
   We are required to show $\Gamma \vDash 1 : unit$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -217,6 +219,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   By definition $1 \in \mathcal{V}_k [unit]$ for any $k$, so we are done.
 
 + **Case $\frac{x : \tau \in \Gamma}{\Gamma \vdash x : \tau}$** :  
+
   Suppose $\Gamma \vdash x : \tau$.  
   We are required to show $\Gamma \vDash x : \tau$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -227,6 +230,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
 
 
 + **Case $\frac{}{\Gamma \vdash true : bool}$** :  
+
   Suppose $\Gamma \vdash true : bool$.  
   We are required to show $\Gamma \vDash true : bool$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -236,6 +240,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   By definition $true \in \mathcal{V}_k [bool]$ for any $k$, so we are done.
 
 + **Case $\frac{}{\Gamma \vdash false : bool}$** :  
+
   Suppose $\Gamma \vdash false : bool$.  
   We are required to show $\Gamma \vDash false : bool$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -245,6 +250,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   By definition $false \in \mathcal{V}_k [bool]$ for any $k$, so we are done.
 
 + **Case $\frac{\Gamma \vdash e_0 : bool \quad \Gamma \vdash e_1 : \tau \quad \Gamma \vdash e_2 : \tau}{\Gamma \vdash if~e_0~e_1~e_2 : \tau}$** :  
+
   Suppose $\Gamma \vdash if~e_0~e_1~e_2 : \tau$.    
   We are required to show $\Gamma \vDash false : bool$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -277,6 +283,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
 
 + **Case $\frac{\Gamma,x:\tau_1 \vdash e:\tau_2}{
   \Gamma \vdash \lambda x:\tau_1 . e:\tau_1 \rightarrow \tau_2}$** :  
+
   Suppose $\Gamma \vdash \lambda x:\tau_1. e : \tau_1 \rightarrow \tau_2$.    
   We are required to show $\Gamma \vDash \lambda x:\tau_1. e : \tau_1 \rightarrow \tau_2$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -292,6 +299,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
 
 + **Case $\frac{\Gamma \vdash e_1:\tau_1 \rightarrow \tau_2 \quad \Gamma \vdash e_2 : \tau_1}{
   \Gamma \vdash e_1e_2: \tau_2}$** :  
+
   Suppose $\Gamma \vdash e_1~e_2 : \tau_ 2$.  
   We are required to show $\Gamma \vDash e_1~e_2 : \tau_2$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
@@ -312,8 +320,28 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Then $e' = e''$ and $j_1 + j_2 + 1 + j_3 = j$.  
   So, $k-j < k-j_1$.  
   Since $e[v/x] \in \mathcal{E}_{k-j_1}$ and $e[v/x] \mapsto_v^{j_3} e'$, where $\irred(e')$, $e' \in \mathcal{V}_{k-j_1-j_3}$.  
-  Since $k-j < k-j_1-j_3$, the monotonicity lemma applied to $e' \in \mathcal{V}_{k-j_1-j_3}$ gives us $e' \in \mathcal{V}_{k-j}[\tau_2]$. 
+  Since $k-j < k-j_1-j_3$, the monotonicity lemma applied to $e' \in \mathcal{V}_{k-j_1-j_3}$ gives us $e' \in \mathcal{V}_{k-j}[\tau_2]$.
 
++ **Case $\frac{\Gamma \vdash e_1 : \tau_1 \quad \Gamma \vdash e_2 : \tau_2}{
+  \Gamma \vdash (e_1, e_2) : \tau_1 \times \tau_2}$** :  
+
+  Suppose $\Gamma \vdash (e_1, e_2) : \tau_1 \times \tau_2$.  
+  We are required to show $\Gamma \vDash (e_1, e_2) : \tau_1 \times \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma ((e_1, e_2)) \in \mathcal{E}_k [\tau_1 \times \tau_2]$.  
+  Since $\gamma ((e_1, e_2)) = (\gamma(e_1), \gamma(e_2))$, it suffices to show $(\gamma(e_1), \gamma(e_2)) \in \mathcal{E}_k [\tau_1 \times \tau_2]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $(\gamma(e_1), \gamma(e_2)) \mapsto^j e'$ where $irred(e')$.    
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau_1 \times \tau_2]$.    
+  By the operational semantics it must be true that     
+  $(\gamma(e_1), \gamma(e_2)) \mapsto_v^{j_1} (e_1', \gamma(e_2))$, where $\irred (e_1')$, and  
+  $(e_1', \gamma(e_2)) \mapsto_v^{j_2} (e_1', e_2')$, where $\irred (e_2')$ and $j_1 + j_2 = j$.  
+  The induction hypothesis on $\Gamma \vdash e_1 : \tau_1$ tells us $e_1' \in \mathcal{V}_{k-j_1} [\tau_1]$ and on $\Gamma \vdash e_2 : \tau_2$ $e_2' \in \mathcal{V}_{k-j_2}[\tau_2]$.  
+  Let $e_1' = v_1$ and $e_2' = v_2$.    
+  Notice $e' = (v_1, v_2)$.  
+  We needed to show $(v_1, v_2) \in \mathcal{V_{k-j}} [\tau_1 \times \tau_2]$.  
+  So if we show $v_1 \in \mathcal{V}_{k-j}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j}[\tau_2]$, we are done.  
+  Since $k-j < k-j_1$ and $k-j < k-j_2$, we can apply the monotonicity lemma to $v_1 \in \mathcal{V}_{k-j_1}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j_2}[\tau_2]$ to get $v_1 \in \mathcal{V}_{k-j}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j}[\tau_2]$ respectively.  
 
 
 
@@ -322,19 +350,43 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
 
 
 + **Case $\frac{\Gamma \vdash e : \tau[\mu \alpha . \tau / \alpha]}{
-  \Gamma \vdash fold~e : \mu \alpha . \tau}$** :  
+  \Gamma \vdash fold~e : \mu \alpha . \tau}$** :
+
   Suppose $\Gamma \vdash fold~e : \mu \alpha. \tau$.  
   We are required to show $\Gamma \vDash fold~e : \mu \alpha. \tau$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
   We want to show $\gamma (fold~e) \in \mathcal{E}_k [\mu \alpha. \tau]$.  
-  Since $\gamma (fold~e) = fold \gamma(e)$, it suffices to show $fold~e \in \mathcal{E}_k [\mu \alpha. \tau]$.  
-  Pick an arbitrary $j < k$.
-  Suppose $fold \gamma(e) \mapsto^j e'$ where $irred(e')$.    
-  We need to show $e' \in V_{k-j} [\mu \alpha. \tau]$.    
+  Since $\gamma (fold~e) = fold~\gamma(e)$, it suffices to show $fold~\gamma(e) \in \mathcal{E}_k [\mu \alpha. \tau]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $fold~\gamma(e) \mapsto^j e'$ where $\irred(e')$.    
+  We need to show $e' \in \mathcal{V}_{k-j} [\mu \alpha. \tau]$.    
   By the operational semantics it must be true that     
-  $fold~\gamma(e) \mapsto^j_v fold~e_1'$, where $irred (e_1')$ and $j_1 \leq j$.  
-  The induction hypothesis tells us $e_1' \in V_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]$.    
+  $fold~\gamma(e) \mapsto_v^{j_1} fold~e_1'$, where $\irred (e_1')$ and $j_1 \leq j$.  
+  The induction hypothesis tells us $e_1' \in \mathcal{V}_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]$.    
   Let $e_1' = v_1$.    
-  Notice $e' = fold~v$ and thus $j_1 = j$.    
-  We need to show $v \in V_m [\tau [\mu \alpha. \tau]/ \alpha]]$ for all $m < k-j$.  
-  Since $m < k-j (= k-j_1)$, we can apply the monotonicity lemma to $v \in V_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]]$ to achieve what we want.  
+  Notice $e' = fold~v_1$ and thus $j_1 = j$.  
+  Remember we needed to show $fold~v_1 \in \mathcal{V}_{k-j} [\mu \alpha. \tau]$.  
+  So if we show $v_1 \in \mathcal{V}_m [\tau [\mu \alpha. \tau]/ \alpha]]$ for all $m < k-j$, we are done.  
+  Pick an arbitrary $m' < k-j$.  
+  Since $m' < k-j_1 (= k-j)$, the monotonicity lemma applied to $v_1 \in \mathcal{V}_{k-j_1}[\tau [\mu \alpha. \tau]/ \alpha]]$ gives us $v_1 \in \mathcal{V}_{m'} [\tau [\mu \alpha. \tau]/ \alpha]]$.
+
+  + **Case $\frac{\Gamma \vdash e : \mu \alpha.\tau}{
+  \Gamma \vdash unfold~e : \tau[\mu \alpha.\tau / \alpha]}$** :
+
+  Suppose $\Gamma \vdash unfold~e : \tau[\mu \alpha.\tau / \alpha]$.  
+  We are required to show $\Gamma \vDash unfold~e : \tau[\mu \alpha.\tau / \alpha]$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (unfold~e) \in \mathcal{E}_k [\tau[\mu \alpha.\tau / \alpha]]$.  
+  Since $\gamma (unfold~e) = unfold~\gamma(e)$, it suffices to show $unfold~\gamma(e) \in \mathcal{E}_k [\tau[\mu \alpha.\tau/\alpha]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $unfold~\gamma(e) \mapsto^j e'$ where $\irred(e')$.    
+  We need to show $e' \in \mathcal{V}_{k-j} [\tau[\mu \alpha.\tau/\alpha]]$.    
+  By the operational semantics it must be true that     
+  $unfold~\gamma(e) \mapsto_v^{j_1} unfold~e_1'$, where $\irred (e_1')$, and    
+  $unfold~e_1' \mapsto_v^{j_2} e_2'$, where $\irred(e_2')$ and $j_1 + j_2 = j$.  
+  The induction hypothesis tells us $e_1' \in \mathcal{V}_{k-j_1} [\mu \alpha.\tau]$.    
+  Therefore, $e_1' = fold~v_1$ and [1]$v_1 \in \mathcal{V}_m[\tau[\mu \alpha.\tau / \alpha]]$ for all $m < k-j_1$.  
+  Since $e_1' = fold~v_1$, $e_2' = unfold (fold~v_1) = v_1$ by the [UNFF] evaluation rule.    
+  Also, note e = v_1'.  
+  Remember we needed to show $v_1 \in \mathcal{V}_{k-j}[\tau[\mu \alpha.\tau/\alpha]]$.  
+  Since $k-j < k-j_1$, $v_1 \in \mathcal{V}_{k-j}[\tau[\mu \alpha.\tau/\alpha]]$ by [1].
