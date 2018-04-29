@@ -164,7 +164,7 @@ $\mathcal{V}_k [unit] = \{ 1 \}$
 
 $\mathcal{V}_k [\tau_1 \rightarrow \tau_2] = \{ \lambda x:\tau_1.~e \mid \forall j < k ~.~\forall v \in \mathcal{V}_j [\tau_1]~.~e[v/x] \in \mathcal{E}_j [\tau_2] \}$  
 
-$\mathcal{V}_k [\tau_1 * \tau_2] = \{(v_1, v_2) \mid v_1 \in \mathcal{V}_j [\tau_1] \wedge v_2 \in \mathcal{V}_j [\tau_2] \}$  
+$\mathcal{V}_k [\tau_1 \times \tau_2] = \{(v_1, v_2) \mid v_1 \in \mathcal{V}_j [\tau_1] \wedge v_2 \in \mathcal{V}_j [\tau_2] \}$  
 
 $\mathcal{V}_k [\tau_1 + \tau_2] = \{inl~v_1 \mid v_1 \in \mathcal{V}_j [\tau_1]\} \cup \{inr~v_2 \mid v_2 \in \mathcal{V}_j [\tau_2] \}$  
 
@@ -213,7 +213,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
   We must show $\gamma(1) \in \mathcal{E}_k[unit]$.  
   Since $\gamma(1) = 1$, it suffices to show $1 \in \mathcal{E}_k[unit]$.  
-  Since $1 \mapsto_v^0 1$, if we show $1 \in \mathcal{V}_{k-0}[unit]$, we are done.  
+  Since $\irred(1)$, if we show $1 \in \mathcal{V}_{k-0}[unit]$, we are done.  
   By definition $1 \in \mathcal{V}_k [unit]$ for any $k$, so we are done.
 
 + **Case $\frac{x : \tau \in \Gamma}{\Gamma \vdash x : \tau}$** :  
@@ -241,17 +241,75 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
   We must show $\gamma(false) \in \mathcal{E}_k[bool]$.  
   Since $\gamma(false) = false$, it suffices to show $false \in \mathcal{E}_k[bool]$.  
-  Since $false \mapsto_v^0 false$, if we show $false \in \mathcal{V}_{k-0}[bool]$, we are done.  
+  Since $\irred(false)$, if we show $false \in \mathcal{V}_{k-0}[bool]$, we are done.  
   By definition $false \in \mathcal{V}_k [bool]$ for any $k$, so we are done.
 
-+ **Case $\frac{x : \tau \in \Gamma}{\Gamma \vdash x : \tau}$** :  
-  Suppose $\Gamma \vdash false : bool$.  
++ **Case $\frac{\Gamma \vdash e_0 : bool \quad \Gamma \vdash e_1 : \tau \quad \Gamma \vdash e_2 : \tau}{\Gamma \vdash if~e_0~e_1~e_2 : \tau}$** :  
+  Suppose $\Gamma \vdash if~e_0~e_1~e_2 : \tau$.    
   We are required to show $\Gamma \vDash false : bool$.  
   Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
-  We must show $\gamma(false) \in \mathcal{E}_k[bool]$.  
-  Since $\gamma(false) = false$, it suffices to show $false \in \mathcal{E}_k[bool]$.  
-  Since $false \mapsto_v^0 false$, if we show $false \in \mathcal{V}_{k-0}[bool]$, we are done.  
-  By definition $false \in \mathcal{V}_k [bool]$ for any $k$, so we are done.
+  We must show $\gamma(if~e_0~e_1~e_2) \in \mathcal{E}_k[bool]$.  
+  Since $\gamma(if~e_0~e_1~e_2) = if~\gamma(e_0)~\gamma(e_1)~\gamma(e_2)$, it suffices to show $if~\gamma(e_0)~\gamma(e_1)~\gamma(e_2) \in \mathcal{E}_k[bool]$.  
+  Suppose $if~\gamma(e_0)~\gamma(e_1)~\gamma(e_2) \mapsto_v^j e'$ and $\irred(e')$.  
+  If we show $e' \in \mathcal{V}_{k-j} [\tau]$, we are done.  
+  The operational semantics tells us  
+  $if~\gamma(e_0)~\gamma(e_1)~\gamma(e_2) \mapsto_v^{j_0} if~e_0'~\gamma(e_1)~\gamma(e_2)$, where $\irred(e_0')$ and $j_0 < j$.  
+  Then it must be true that $e_0'$ is either $true$ or $false$.
+  - **Case $e_0' = true$** :    
+  The reduction rule [E-IFT] applies:  
+  $if~true~\gamma(e_1)~\gamma(e_2) \mapsto_v^1 \gamma(e_1)$  
+  Suppose $\gamma(e_1) \mapsto_v^{j_1} e_1'$, where $\irred(e_1')$.  
+  Then $e' = e_1'$.  
+  Remember we needed to show $e_1' \in \mathcal{V}_{k-j} [\tau]$.  
+  By the induction hypothesis on $\Gamma \vdash e_1 :\tau$, $e_1'$, we know $e_1' \in \mathcal{V}_{k-j_1} [\tau]$.  
+  Since $j_0 + 1 + j_1 = j$, $k-j < k-j_1$.  
+  So the monotonicity lemma applied to $e_1' \in \mathcal{V}_{k-j_1} [\tau]$ tells us $e_1' \in \mathcal{V}_{k-j} [\tau]$.  
+
+  - **Case $e_0' = false$** :  
+  The reduction rule [E-IFF] applies:  
+  $if~false~\gamma(e_1)~\gamma(e_2) \mapsto_v^1 \gamma(e_2)$  
+  Suppose $\gamma(e_2) \mapsto_v^{j_1} e_2'$, where $\irred(e_12)$.  
+  Then $e' = e_2'$.  
+  Remember we needed to show $e_2 \in \mathcal{V}_{k-j} [\tau]$.  
+  By the induction hypothesis on $\Gamma \vdash e_2 :\tau$, $e_1'$, we know $e_2' \in \mathcal{V}_{k-j_2} [\tau]$.  
+  Since $j_0 + 1 + j_2 = j$, $k-j < k-j_2$.  
+  So the monotonicity lemma applied to $e_2' \in \mathcal{V}_{k-j_2} [\tau]$ tells us $e_2' \in \mathcal{V}_{k-j} [\tau]$.  
+
++ **Case $\frac{\Gamma,x:\tau_1 \vdash e:\tau_2}{
+  \Gamma \vdash \lambda x:\tau_1 . e:\tau_1 \rightarrow \tau_2}$** :  
+  Suppose $\Gamma \vdash \lambda x:\tau_1. e : \tau_1 \rightarrow \tau_2$.    
+  We are required to show $\Gamma \vDash \lambda x:\tau_1. e : \tau_1 \rightarrow \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We must show $\gamma(\lambda x:\tau_1.e) \in \mathcal{E}_k[\tau_1 \rightarrow \tau_2]$.  
+  Since $\gamma(\lambda x:\tau_1.e) = \lambda x:\tau_1.\gamma(e)$, it suffices to show $\lambda x:\tau_1.\gamma(e) \in \mathcal{E}_k[\tau_1 \rightarrow \tau_2]$.  
+  Note $\lambda x:\tau_1.e \mapsto_v^0 \lambda x:\tau_1.e$. (i.e. $\irred(\lambda x: \tau_1 .e)$)  
+  So we need to show $\lambda x:\tau_1.e \in \mathcal{V}_k[\tau_1 \rightarrow \tau_2]$.  
+  Suppose $j < k$ and $v \in \mathcal{V}_j[\tau_1]$.  
+  If we show $e[v/x] \in \mathcal{E}_j[\tau_2]$, we are done.  
+  The induction hypothesis on $\Gamma, x:\tau_1 \vdash e:\tau_2$ states that for $\gamma' \in \mathcal{G}_k [\Gamma, x:\tau_1]$ we have $\gamma'(e) \in \mathcal{E}_k[\tau_2]$.  
+  By definition $\gamma'(x) = v$ where $v : \tau_1$, so $\gamma'(e) = e[v/x]$.   
+  Since $j < k$, the monotonicity lemma applied to $\gamma'(e) \in \mathcal{E}_k[\tau_2]$ gives us what we want, $e[v/x] \in \mathcal{E}_j[\tau_2]$.
+
++ **Case $\frac{\Gamma \vdash e_1:\tau_1 \rightarrow \tau_2 \quad \Gamma \vdash e_2 : \tau_1}{
+  \Gamma \vdash e_1e_2: \tau_2}$** :  
+  Suppose $\Gamma \vdash e_1~e_2 : \tau_ 2$.  
+  We are required to show $\Gamma \vDash e_1~e_2 : \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We must show $\gamma(e_1~e_2) \in \mathcal{E}_k[\tau_2]$.  
+  Since $\gamma(e_1~e_2) = \gamma(e_1)\gamma(e_2)$, it suffices to show $\gamma(e_1)\gamma(e_2) \in \mathcal{E}_k[\tau_2]$.  
+  Suppose $\gamma(e_1)\gamma(e_2) \mapsto_v^j e'$ and $\irred(e')$.  
+  If we show $e' \in \mathcal{V}_{k-j}$, we are done.  
+  The operational semantics tells us  
+  $\gamma(e_1)\gamma(e_2) \mapsto_v^{j_1} e_1'\gamma(e_2)$, where $\irred(e_1')$  
+  $e_1'\gamma(e_2) \mapsto_v^{j_2} e_1'~e_2'$, where $\irred(e_2')$ and $j_1 + j_2 < j$.  
+  By the induction hypothesis on $\Gamma \vdash e_1: \tau_1 \rightarrow \tau_2$, we know $e_1' = \lambda x:\tau_1. e \in \mathcal{V}_{k-j_1}[\tau_1 \rightarrow \tau_2]$.  
+  Moreover, the induction hypothesis on $\Gamma \vdash e_2 : \tau_1$ tells us $e_2' = v_2 \in \mathcal{V}_{k-j_2}[\tau_1]$.  
+  Then the reduction rule [E-BETA] applies:  
+  $(\lambda x:\tau_1.e)~v \mapsto_v^1 e[v/x]$  
+  Suppose $e[v/x] \mapsto_v^{j_3} e''$ and $\irred(e'')$.  
+  Then $e' = e''$ and $j_1 + j_2 + j_3 = j$.  
+  Remember we needed to show $e' \in \mathcal{V}_{k-j}[\tau_2]$.  
+
 
 + **Case $\frac{\Gamma \vdash e : \tau[\mu \alpha . \tau / \alpha]}{
   \Gamma \vdash fold~e : \mu \alpha . \tau}$** :  
@@ -265,176 +323,8 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   We need to show $e' \in V_{k-j} [\mu \alpha. \tau]$.    
   By the operational semantics it must be true that     
   $fold~\gamma(e) \mapsto^j_v fold~e_1'$, where $irred (e_1')$ and $j_1 \leq j$.  
-  The induction hypothesis tells us $e_1' \in V_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]]$.    
+  The induction hypothesis tells us $e_1' \in V_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]$.    
   Let $e_1' = v_1$.    
   Notice $e' = fold~v$ and thus $j_1 = j$.    
   We need to show $v \in V_m [\tau [\mu \alpha. \tau]/ \alpha]]$ for all $m < k-j$.  
   Since $m < k-j (= k-j_1)$, we can apply the monotonicity lemma to $v \in V_{k-j_1} [\tau [\mu \alpha. \tau]/ \alpha]]$ to achieve what we want.  
-
-
-+ Case                 {equation*} \infer[\mathsf{\text{T-IF:}}]{\Gamma \vdash if~e_1~e_2~e_3 : \tau}{\Gamma \vdash e_1 : bool & \Gamma \vdash e_2 : \tau & \Gamma \vdash e_3 : \tau}                   {equation*}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(if~e_1~e_2~e_3) \in \mathcal{E} [\tau]$.    
-  Note $\gamma(if~e_1~e_2~e_3) = if \gamma(e_1) \gamma(e_2) \gamma(e_3)$.    
-  So it suffices to show $if \gamma(e_1) \gamma(e_2) \gamma(e_3) \in \mathcal{E} [\tau]$.    
-  Suppose $if \gamma(e_1) \gamma(e_2) \gamma(e_3) \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau]$.    
-  The operational context, $if~E~e~e$, dictates that $if~\gamma(e_1) \gamma(e_2) \gamma(e_3) \mapsto^* if~e_1' \gamma(e_2) \gamma(e_3)$ where $irred(e_1')$.    
-  $\gamma(e_1) \mapsto^* e_1'$ and the induction hypothesis tell us that $e_1' \in \mathcal{V} [bool]$.    
-  There are two cases to consider.
-                  {itemize}
-  + Case $(e_1' = true)$:    
-    If $e_1' = true$, then the operational rule, E-TRUE, says $if~e_1'~\gamma(e_2) \gamma(e_3) \mapsto \gamma(e_2)$.    
-    The induction hypothesis tells us that $\forall e_2'~.~\gamma(e_2) \mapsto^* e_2' \wedge irred(e_2')$~.~$e_2' \in \mathcal{V} [\tau]$.    
-    So $e_2'$ is our $e'$ and it is shown that $e' \in \mathcal{V} [\tau]$ indeed.      
-  + Case $(e_1' = false)$:    
-    If $e_1' = false$, then the operational rule, E-FALSE, says $if~e_1'~\gamma(e_2) \gamma(e_3) \mapsto \gamma(e_3)$.    
-    The induction hypothesis tells us that $\forall e_3'~.~\gamma(e_3) \mapsto^* e_3' \wedge irred(e_3')$~.~$e_3' \in \mathcal{V} [\tau]$.    
-    So $e_3'$ is our $e'$ and it is shown that $e' \in \mathcal{V} [\tau]$ indeed.      
-                    {itemize}
-
-\newpage  
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-ABS:}}]{\Gamma \vdash \lambda~x:\tau_1.e : \tau_1 \rightarrow \tau_2}{\Gamma, x:\tau_1 \vdash e : \tau_2}                   {mathpar}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(\lambda~x:\tau_1.e) \in \mathcal{E} [\tau_1 \rightarrow \tau_2]$.    
-  Note $dom(\Gamma) = dom(\gamma)$, which means $x \notin dom(\Gamma) \Rightarrow x \notin dom(\gamma)$.    
-  So $\gamma(\lambda~x:\tau_1.e) = \lambda~x:\tau_1.\gamma(e)$.    
-  Then it suffices to show $\lambda~x:\tau_1.\gamma(e) \in \mathcal{E} [\tau_1 \rightarrow \tau_2]$.    
-  Note $\lambda~x:\tau_1.\gamma(e)$ is already a value, which means    
-  $\lambda~x:\tau_1.\gamma(e) \mapsto^0 \lambda~x:\tau_1.\gamma(e) \wedge irred(\lambda~x:\tau_1.\gamma(e))$.    
-  We need to show $\lambda~x:\tau_1.\gamma(e) \in \mathcal{V} [\tau_1 \rightarrow \tau_2]$.    
-  Consider an arbitrary $v \in \mathcal{V} [\tau_1 \rightarrow \tau_2]$.    
-  We are now to show $\gamma(e)[v/x] \in \mathcal{E} [\tau_2]$.    
-  Extend $\gamma$ with $x \mapsto v$, and call it $\gamma'$.    
-  Notice that $\gamma' \in \mathcal{G} [\Gamma, x:\tau_1]$, because $\gamma \in \mathcal{G} [\Gamma]$.    
-  The induction hypothesis tells us that $\gamma'(e) \in \mathcal{E} [\tau_2]$.    
-  %which means $\forall~\gamma'(e)'~.~\gamma'(e) \mapsto^* \gamma'(e)' \wedge irred(\gamma'(e)')~.~\gamma'(e)' \in \mathcal{V} [\tau_2]$.    
-  Since $\gamma'(e) = \gamma(e)[v/x]$ by definition, we showed $\gamma(e)[v/x] \in \mathcal{E} [\tau_2]$.    
-
-\newpage    
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-APP:}}]{\Gamma \vdash e_1~e_2 : \tau_2}{\Gamma \vdash e_1 : \tau_1 \rightarrow \tau_2 & \Gamma \vdash e_2 : \tau_1}                   {mathpar}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(e_1~e_2) \in \mathcal{E} [\tau_2]$.    
-  Since $\gamma(e_1~e_2) = \gamma(e_1)~\gamma(e_2)$, it suffices to show $\gamma(e_1)~\gamma(e_2) \in \mathcal{E} [\tau_1 \rightarrow \tau_2]$.    
-  Suppose $\gamma(e_1)~\gamma(e_2) \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau_2]$.    
-  The operational contexts, $E e$ and $v E$, dictate that    
-  $\gamma(e_1)~\gamma(e_2) \mapsto^* e_1'~\gamma(e_2)$, where $irred(e_1')$, and    
-  $e_1'~\gamma(e_2) \mapsto^* e_1'~e_2'$, where $irred(e_2')$.    
-  From the induction hypothesis, $e_1' \in \mathcal{V} [\tau_1 \rightarrow \tau_2]$ and $e_2' \in \mathcal{V} [\tau_1]$.    
-  Let $e_1' = v_1$ and $e_2' = v_2$.    
-  Since $v_1 \in \mathcal{V} [\tau_1 \rightarrow \tau_2]$, $v1 = \lambda~x:\tau_1.e$.    
-  Since $v_2 \in \mathcal{V} [\tau_1]$, $e[v_2/x] \in \mathcal{E} [\tau_2]$, which means    
-  $\forall~e[v_2/x]'~.~e[v_2/x] \mapsto^* e[v_2/x]' \wedge irred(e[v_2/x]')~.~ e[v_2/x]' \in \mathcal{V} [\tau_2]$.    
-  Since our original $\gamma(e_1)~\gamma(e_2) \mapsto^* e[v_2/x]' \wedge irred(e[v_2/x]')$, $e[v_2/x]'$ is our $e'$, and we just showed that $e' \in \mathcal{V} [\tau_2]$.    
-
-\newpage      
-
-+ Case                 {equation*} \infer[\mathsf{\text{T-PAIR:}}]{\Gamma \vdash (e_1,e_2) : \tau_1 * \tau_2}{\Gamma \vdash e_1 : \tau_1 & \Gamma \vdash e_2 : \tau_2}                   {equation*}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma((e_1, e_2)) \in \mathcal{E} [\tau_1 * \tau_2]$.    
-  Since $\gamma((e_1, e_2)) = (\gamma(e_1), \gamma(e_2))$, it suffices to show $(\gamma(e_1), \gamma(e_2)) \in \mathcal{E} [\tau_1 * \tau_2]$.    
-  Suppose $(\gamma(e_1), \gamma(e_2)) \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau_1 * \tau_2]$.    
-  The operational conetexts, $(E, e)$ and $(v, E)$, dictate that    
-  $(\gamma(e_1), \gamma(e_2)) \mapsto^* (e_1', \gamma(e_2))$, where $irred(e_1')$, and    
-  $(e_1', \gamma(e_2)) \mapsto^* (e_1', e_2')$, where $irred(e_2')$.    
-  The induction hypothesis tells us that $e_1' \in \mathcal{V} [\tau_1]$ and $e_2' \in \mathcal{V} [\tau_2]$.    
-  Let $e_1' = v_1$ and $e_2' = v_2$.    
-  Then our original $(\gamma(e_1), \gamma(e_2)) \mapsto^* (v_1, v_2) \wedge irred ((v_1, v_2))$. So our $e' = (v_1, v_2)$.    
-  Moreoever, $v_1 \in \mathcal{V} [\tau_1]$ and $v_2 \in \mathcal{V} [\tau_2]$ imply that $e' \in \mathcal{V} [\tau_1 * \tau_2]$, which is what we needed to prove.
-
-\newpage        
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-PROJ1:}}]{\Gamma \vdash e.1 : \tau_1}{\Gamma \vdash e : \tau_1 * \tau_2}                   {mathpar}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(e.1) \in \mathcal{E} [\tau_1]$.    
-  Since $\gamma(e.1) = \gamma(e).1$, it suffices to show $\gamma(e).1 \in \mathcal{E} [\tau_1]$.    
-  Suppose $\gamma(e).1 \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau_1]$.    
-  The operational context, E.1, dictates that    
-  $\gamma(e).1 \mapsto^* e''.1$, where $irred(e'')$.    
-  The induction hypothesis tells us that $e'' \in \mathcal{V} [\tau_1 * \tau_2]$.    
-  So $e'' = (v_1, v_2)$, where $v_1 \in \mathcal{V} [\tau_1]$ and $v_2 \in \mathcal{V} [\tau_2]$.    
-  Then the evaluation rule, E-FST, reduces $e''.1$ one more time:    
-  $e''.1 \mapsto v_1$.    
-  So our original $\gamma(e).1 \mapsto^* v_1$ and $irred(v_1)$.    
-  This means $v_1$ is our $e'$ and we needed to show $e' \in \mathcal{V} [\tau_1]$.    
-  Since $v_1 \in \mathcal{V} [\tau_1]$, we are done.
-
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-PROJ2:}}]{\Gamma \vdash e.2 : \tau_2}{\Gamma \vdash e : \tau_1 * \tau_2}                   {mathpar}
-  The proof is similar to T-PROJ1 case.
-
-\newpage          
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-INL:}}]{\Gamma \vdash inl~e_1 : \tau_1 + \tau_2}{\Gamma \vdash e_1 : \tau_1}                   {mathpar}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(inl~e_1) \in \mathcal{E} [\tau_1 + \tau_2]$.    
-  Since $\gamma(inl~e_1) = inl~\gamma(e_1)$, it suffices to show $inl~\gamma(e_1) \in \mathcal{E} [\tau_1 + \tau_2]$.    
-  Suppose $inl~\gamma(e_1) \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau_1 + \tau_2]$.    
-  The operational rule, $inl~E$, dictates that    
-  $inl~\gamma(e_1) \mapsto^* inl~e_1'$, where $irred(e_1')$.    
-  $\gamma(e_1) \mapsto^* e_1'$ and the induction hypothesis tells us that $e_1' \in \mathcal{V} [\tau_1]$.    
-  Let $e_1' = v_1$.    
-  Then our original $inl~\gamma(e_1) \mapsto^* inl~v_1$, where $irred(inl~v_1)$.    
-  Therefore, $inl~v_1$ is our $e'$ and we needed to show $e' \in \mathcal{V} [\tau_1]$.    
-  Since $inl~v_1 \in \mathcal{V} [\tau_1]$, we are done.    
-
-+ Case                 {mathpar} \infer[\mathsf{\text{T-INR:}}]{\Gamma \vdash inr~e_2 : \tau_1 + \tau_2}{\Gamma \vdash e_2 : \tau_2}                   {mathpar}
-  The proof is symmetric to T-INL case.
-
-\newpage          
-
-+ Case                 {equation*} \infer[\mathsf{\text{T-CASE:}}]{\Gamma \vdash case~e_0~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2 : \tau}{\Gamma \vdash e_0 : \tau_1 + \tau_2 & \Gamma, x_1 : \tau_1  \vdash e_1 : \tau & \Gamma, x_2: \tau_2, \vdash e_2 : \tau}                   {equation*}
-  Consider an arbitrary $\gamma \in \mathcal{G} [\Gamma]$.    
-  We are required to show $\gamma(case~e_0~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2) \in \mathcal{E} [\tau]$.    
-  Note
-                  {align*}
-    \gamma(case~e_0~of~inl~x_1 \Rightarrow e_1; inr~x_2 \Rightarrow e_2) &=    
-    case~\gamma(e_0)~of~inl~x_1 &\Rightarrow \gamma(e_1); inr~x_2 \Rightarrow \gamma(e_2)
-                    {align*}
-    because $x_1, x_2 \notin dom(\gamma)$.    
-  So it suffices to show $case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1); inr~x_2 \Rightarrow \gamma(e_2) \in \mathcal{E} [\tau]$.    
-  Suppose $case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1); inr~x_2 \Rightarrow \gamma(e_2) \mapsto^* e' \wedge irred(e')$.    
-  We need to show $e' \in \mathcal{V} [\tau]$.    
-  The operational context, $case~E~of~inl~x \Rightarrow e; inr~x \Rightarrow e$, dictates that    
-                  {align*}
-    case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1); inr~x_2 \Rightarrow \gamma(e_2) &\mapsto^*    
-    case~e_0'~of~inl~x_1 \Rightarrow \gamma(e_1); inr~x_2 &\Rightarrow \gamma(e_2),    
-    \text{where } &irred(e_0').
-                    {align*}
-
-  $\gamma(e_0) \mapsto^* e_0'$ and the induction hypothesis tells us that $e_0' \in \mathcal{V} [\tau_1 + \tau_2]$.    
-  Back to showing $e' \in \mathcal{V} [\tau]$, there are two cases to consider.
-                  {itemize}
-  + Case $(e_0' = inl~v)$ for some $v \in \mathcal{V} [\tau_1]$:    
-    In this case, the evaluation rule, E-INL, allows    
-    $case~inl~v~of~inl~x_1 \Rightarrow \gamma(e_1); inr~x_2 \Rightarrow \gamma(e_2) \mapsto \gamma(e_1)[v/x_1]$.    
-    Since $\gamma(e_1)[v/x_1] \mapsto^* e'$, $\gamma(e_1)[v/x_1] \in \mathcal{E} [\tau] \equiv e' \in \mathcal{V} [\tau]$.    
-    So it suffices to show the left hand side.    
-    Now extend $\gamma$ with $x \mapsto v$ and call it $\gamma'$.    
-    Notice $\gamma' \in \mathcal{G} [\Gamma, x:\tau_1]$.    
-    Then the induction hypothesis tells us $\gamma'(e_1) \in \mathcal{E} [\tau]$.    
-    Since $\gamma'(e_1) = \gamma(e_1)[v/x_1]$ by definition, we've shown what we needed to show.    
-
-  + Case $(e_0' = inr~v)$ for some $v \in \mathcal{V} [\tau_2]$: This case is symmetric to the $inl~v$ case.
-                    {itemize}
-
-                  {itemize}
-                  {itemize}
-
-
-
-
-
-
-
-                  {document}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%=============================================================================%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
