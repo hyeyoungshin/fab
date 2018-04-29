@@ -298,7 +298,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   We must show $\gamma(e_1~e_2) \in \mathcal{E}_k[\tau_2]$.  
   Since $\gamma(e_1~e_2) = \gamma(e_1)\gamma(e_2)$, it suffices to show $\gamma(e_1)\gamma(e_2) \in \mathcal{E}_k[\tau_2]$.  
   Suppose $\gamma(e_1)\gamma(e_2) \mapsto_v^j e'$ and $\irred(e')$.  
-  If we show $e' \in \mathcal{V}_{k-j}$, we are done.  
+  If we show $e' \in \mathcal{V}_{k-j}[\tau_2]$, we are done.  
   The operational semantics tells us  
   $\gamma(e_1)\gamma(e_2) \mapsto_v^{j_1} e_1'\gamma(e_2)$, where $\irred(e_1')$  
   $e_1'\gamma(e_2) \mapsto_v^{j_2} e_1'~e_2'$, where $\irred(e_2')$ and $j_1 + j_2 < j$.  
@@ -306,9 +306,19 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Moreover, the induction hypothesis on $\Gamma \vdash e_2 : \tau_1$ tells us $e_2' = v_2 \in \mathcal{V}_{k-j_2}[\tau_1]$.  
   Then the reduction rule [E-BETA] applies:  
   $(\lambda x:\tau_1.e)~v \mapsto_v^1 e[v/x]$  
-  Suppose $e[v/x] \mapsto_v^{j_3} e''$ and $\irred(e'')$.  
-  Then $e' = e''$ and $j_1 + j_2 + j_3 = j$.  
+  Since $j_1 < k$ and $j_2 < k$, $e[v/x] \in \mathcal{E}_{k-j_1}[\tau_2]$.  
   Remember we needed to show $e' \in \mathcal{V}_{k-j}[\tau_2]$.  
+  Suppose $e[v/x] \mapsto_v^{j_3} e''$ and $\irred(e'')$.  
+  Then $e' = e''$ and $j_1 + j_2 + 1 + j_3 = j$.  
+  So, $k-j < k-j_1$.  
+  Since $e[v/x] \in \mathcal{E}_{k-j_1}$ and $e[v/x] \mapsto_v^{j_3} e'$, where $\irred(e')$, $e' \in \mathcal{V}_{k-j_1-j_3}$.  
+  Since $k-j < k-j_1-j_3$, the monotonicity lemma applied to $e' \in \mathcal{V}_{k-j_1-j_3}$ gives us $e' \in \mathcal{V}_{k-j}[\tau_2]$. 
+
+
+
+
+
+
 
 
 + **Case $\frac{\Gamma \vdash e : \tau[\mu \alpha . \tau / \alpha]}{
