@@ -6,7 +6,7 @@ $$\def\val{\operatorname{val}}\def\sound{\operatorname{sound}}\def\irred{\operat
 ## Syntax
 $                {array}{l c l}
   \tau & ::= & unit \mid bool \mid unit \mid \tau \rightarrow \tau \mid \tau * \tau \mid \tau + \tau \mid \mu \alpha. \tau    [1em]
-  e    & ::= & 1 \mid x \mid true \mid false \mid if~e_1~e_2~e_3 \mid \lambda~x:\tau.~e \mid e~e \mid (e, e) \mid e.1 \mid e.2 \mid inl~e \mid    [1em]
+  e    & ::= & 1 \mid x \mid true \mid false \mid if~e_1~e_2~e_3 \mid \lambda~x:\tau.~e \mid e~e \mid (e, e) \mid e.1 \mid e.2 \mid inr~e \mid    [1em]
   &    & inr~e \mid case~e~of~inl~x \Rightarrow e~;~inr~x \Rightarrow e \mid fold~e \mid unfold~e    [1em]
   v    & ::= & 1 \mid true \mid false \mid \lambda~x:\tau.~e \mid (v,v) \mid inl~v \mid inr~v \mid fold~v     [1em]  
   \Gamma & ::= & . \mid \Gamma,~x:\tau    [2em]
@@ -164,9 +164,9 @@ $\mathcal{V}_k [unit] = \{ 1 \}$
 
 $\mathcal{V}_k [\tau_1 \rightarrow \tau_2] = \{ \lambda x:\tau_1.~e \mid \forall j < k ~.~\forall v \in \mathcal{V}_j [\tau_1]~.~e[v/x] \in \mathcal{E}_j [\tau_2] \}$  
 
-$\mathcal{V}_k [\tau_1 \times \tau_2] = \{(v_1, v_2) \mid v_1 \in \mathcal{V}_j [\tau_1] \wedge v_2 \in \mathcal{V}_j [\tau_2] \}$  
+$\mathcal{V}_k [\tau_1 \times \tau_2] = \{(v_1, v_2) \mid v_1 \in \mathcal{V}_k [\tau_1] \wedge v_2 \in \mathcal{V}_k [\tau_2] \}$  
 
-$\mathcal{V}_k [\tau_1 + \tau_2] = \{inl~v_1 \mid v_1 \in \mathcal{V}_j [\tau_1]\} \cup \{inr~v_2 \mid v_2 \in \mathcal{V}_j [\tau_2] \}$  
+$\mathcal{V}_k [\tau_1 + \tau_2] = \{inl~v_1 \mid v_1 \in \mathcal{V}_k [\tau_1]\} \cup \{inr~v_2 \mid v_2 \in \mathcal{V}_k [\tau_2] \}$  
 
 $\mathcal{V}_k [\mu \alpha.\tau] = \{fold~v \mid \forall j < k ~.~ v \in \mathcal{V}_j [\tau[\mu \alpha.\tau / \alpha]] \}$  
 
@@ -298,7 +298,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Since $j < k$, the monotonicity lemma applied to $\gamma'(e) \in \mathcal{E}_k[\tau_2]$ gives us what we want, $e[v/x] \in \mathcal{E}_j[\tau_2]$.
 
 + **Case $\frac{\Gamma \vdash e_1:\tau_1 \rightarrow \tau_2 \quad \Gamma \vdash e_2 : \tau_1}{
-  \Gamma \vdash e_1e_2: \tau_2}$** :  
+  \Gamma \vdash e_1~e_2: \tau_2}$** :  
 
   Suppose $\Gamma \vdash e_1~e_2 : \tau_ 2$.  
   We are required to show $\Gamma \vDash e_1~e_2 : \tau_2$.  
@@ -331,7 +331,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   We want to show $\gamma ((e_1, e_2)) \in \mathcal{E}_k [\tau_1 \times \tau_2]$.  
   Since $\gamma ((e_1, e_2)) = (\gamma(e_1), \gamma(e_2))$, it suffices to show $(\gamma(e_1), \gamma(e_2)) \in \mathcal{E}_k [\tau_1 \times \tau_2]$.  
   Pick an arbitrary $j < k$.  
-  Suppose $(\gamma(e_1), \gamma(e_2)) \mapsto^j e'$ where $irred(e')$.    
+  Suppose $(\gamma(e_1), \gamma(e_2)) \mapsto_v^j e'$ where $\irred(e')$.    
   We need to show $e' \in \mathcal{V_{k-j}} [\tau_1 \times \tau_2]$.    
   By the operational semantics it must be true that     
   $(\gamma(e_1), \gamma(e_2)) \mapsto_v^{j_1} (e_1', \gamma(e_2))$, where $\irred (e_1')$, and  
@@ -343,10 +343,120 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   So if we show $v_1 \in \mathcal{V}_{k-j}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j}[\tau_2]$, we are done.  
   Since $k-j < k-j_1$ and $k-j < k-j_2$, we can apply the monotonicity lemma to $v_1 \in \mathcal{V}_{k-j_1}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j_2}[\tau_2]$ to get $v_1 \in \mathcal{V}_{k-j}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j}[\tau_2]$ respectively.  
 
++ **Case $\frac{\Gamma \vdash e : \tau_1  \times \tau_2}{
+  \Gamma \vdash e.1 : \tau_1}$** :  
+
+  Suppose $\Gamma \vdash e.1 : \tau_1$.
+  We are required to show $\Gamma \vDash e.1 : \tau_1$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (e.1) \in \mathcal{E}_k [\tau_1]$.  
+  Since $\gamma (e.1) = \gamma(e).1, it suffices to show $\gamma(e.1) \in \mathcal{E}_k [\tau_1]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $\gamma(e).1 \mapsto_v^j e'$ where $\irred(e')$.    
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau_1]$.    
+  By the operational semantics it must be true that     
+  $\gamma(e).1 \mapsto_v^{j_1} e_1'.1$, where $\irred (e_1')$.  
+  The induction hypothesis on $\Gamma \vdash e : \tau_1 \times \tau_2$ tells us $e_1' \in \mathcal{V}_{k-j_1} [\tau_1 \times \tau_2]$.  
+  Then $e_1' = (v_1, v_2)$ where $v_1 \in \mathcal{V}_{k-j_1}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j_1}[\tau_2]$.  
+  By the evaluation rule [E-PROJ1], $(v_1, v_2).1 \mapsto_v^1 v_1$.  
+  So $e' = v_1$ and $j_1 + 1 = j$.  
+  If we show $v_1 \in \mathcal{V}_{k-j}[\tau_1]$, we are done.  
+  Since $k-j < k-j_1$, the monotonicity lemma applied to $v_1 \in \mathcal{V}_{k-j_1}[\tau_1]$ gives us what we want, $v_1 \in \mathcal{V}_{k-j}[\tau_1]$.  
+
++ **Case $\frac{\Gamma \vdash e : \tau_1  \times \tau_2}{
+  \Gamma \vdash e.2 : \tau_2}$** :  
+
+  Suppose $\Gamma \vdash e.2 : \tau_2$.  
+  We are required to show $\Gamma \vDash e.2 : \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (e.2) \in \mathcal{E}_k [\tau_2]$.  
+  Since $\gamma (e.2) = \gamma(e).2$, it suffices to show $\gamma(e).2 \in \mathcal{E}_k [\tau_2]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $\gamma(e).2 \mapsto_v^j e'$ where $\irred(e')$.    
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau_2]$.    
+  By the operational semantics it must be true that     
+  $\gamma(e).1 \mapsto_v^{j_2} e_2'.2$, where $\irred (e_2')$.  
+  The induction hypothesis on $\Gamma \vdash e : \tau_1 \times \tau_2$ tells us $e_2' \in \mathcal{V}_{k-j_2} [\tau_1 \times \tau_2]$.  
+  Then $e_2' = (v_1, v_2)$, where $v_1 \in \mathcal{V}_{k-j_2}[\tau_1]$ and $v_2 \in \mathcal{V}_{k-j_2}[\tau_2]$.  
+  By the evaluation rule [E-PROJ1], $(v_1, v_2).2 \mapsto_v^1 v_2$.  
+  So $e' = v_2$ and $j_2 + 1 = j$.  
+  If we show $v_2 \in \mathcal{V}_{k-j}[\tau_2]$, we are done.  
+  Since $k-j < k-j_2$, the monotonicity lemma applied to $v_2 \in \mathcal{V}_{k-j_2}[\tau_2]$ gives us what we want, $v_2 \in \mathcal{V}_{k-j}[\tau_2]$.  
 
 
++ **Case $\frac{\Gamma \vdash e_1 : \tau_1}{
+  \Gamma \vdash inl~e_1 : \tau_1 + \tau_2}$** :  
 
+  Suppose $\Gamma \vdash inl~e_1 : \tau_1 + \tau_2$.  
+  We are required to show $\Gamma \vDash inl~e_1 : \tau_1 + \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (inl~e_1) \in \mathcal{E}_k [\tau_1 + \tau_2]$.  
+  Since $\gamma (inl~e_1) = inl~\gamma(e_1)$, it suffices to show $inl~\gamma(e_1) \in \mathcal{E}_k [\tau_1 + \tau_2]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $inl~\gamma(e_1) \mapsto^j e'$ where $(e')$.    
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau_1 + \tau_2]$.    
+  By the operational semantics it must be true that     
+  $inl~\gamma(e_1) \mapsto_v^{j_1} inl~e_1'$, where $\irred (e_1')$ and $j_1 \leq j$.  
+  The induction hypothesis on $\Gamma \vdash e_1 : \tau_1$ tells us $e_1' \in \mathcal{V}_{k-j_1} [\tau_1]$.  
+  Let $e_1' = v_1$.  
+  Then $e' = inl~v_1$  and $j_1 =j$.  
+  Since $v_1 \in \mathcal{V}_{k-j} [\tau_1]$, $inl~v_1 \in \mathcal{V}_{k-j}[\tau_1 + \tau_2]$.
 
++ **Case $\frac{\Gamma \vdash e_2 : \tau_2}{
+  \Gamma \vdash inr~e_2 : \tau_1 + \tau_2}$** :  
+
+  Suppose $\Gamma \vdash inr~e_2 : \tau_1 + \tau_2$.  
+  We are required to show $\Gamma \vDash inr~e_2 : \tau_1 + \tau_2$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (inr~e_2) \in \mathcal{E}_k [\tau_1 + \tau_2]$.  
+  Since $\gamma (inr~e_2) = inr~\gamma(e_2)$, it suffices to show $inr~\gamma(e_2) \in \mathcal{E}_k [\tau_1 + \tau_2]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $inr~\gamma(e_2) \mapsto^j e'$ where $\irred(e')$.    
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau_1 + \tau_2]$.    
+  By the operational semantics it must be true that     
+  $inr~\gamma(e_2) \mapsto_v^{j_2} inr~e_2'$, where $\irred (e_2')$ and $j_2 \leq j$.  
+  The induction hypothesis on $\Gamma \vdash e_2 : \tau_2$ tells us $e_2' \in \mathcal{V}_{k-j_2} [\tau_2]$.  
+  Let $e_2' = v_2$.  
+  Then $e' = inr~v_2$  and $j_2 =j$.  
+  Since $v_2 \in \mathcal{V}_{k-j} [\tau_2]$, $inr~v_2 \in \mathcal{V}_{k-j}[\tau_1 + \tau_2]$.
+
++ **Case $\frac{\Gamma \vdash e_0 : \tau_1 + \tau_2 \quad \Gamma, x_1 : \tau_1 \vdash e_1 : \tau \quad \Gamma, x_2 : \tau_2 \vdash e_2 : \tau}{
+  \Gamma \vdash case~e_0~of~inl~x_1 \Rightarrow e_1;~inr~x_2 \Rightarrow e_2 : \tau}$** :
+
+  Suppose $\Gamma \vdash case~e_0~of~inl~x_1 \Rightarrow e_1;~inr~x_2 \Rightarrow e_2 : \tau$.  
+  We are required to show $\Gamma \vDash case~e_0~of~inl~x_1 \Rightarrow e_1;~inr~x_2 \Rightarrow e_2 : \tau$.  
+  Pick an arbitrary $k$ and $\gamma$ such that $\gamma \in \mathcal{G}_k [\Gamma]$.  
+  We want to show $\gamma (case~e_0~of~inl~x_1 \Rightarrow e_1;~inr~x_2 \Rightarrow e_2) \in \mathcal{E}_k [\tau]$.  
+  Since $\gamma (case~e_0~of~inl~x_1 \Rightarrow e_1;~inr~x_2 \Rightarrow e_2) =  
+  case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2)$, it suffices to show $case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2) \in \mathcal{E}_k [\tau]$.  
+  Pick an arbitrary $j < k$.  
+  Suppose $case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2) \mapsto^j e'$ where $\irred(e')$.  
+  We need to show $e' \in \mathcal{V_{k-j}} [\tau]$.  
+  By the operational semantics it must be true that  
+  $case~\gamma(e_0)~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2) \mapsto_v^{j_0} case~e_0'~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow e_2$, where $\irred (e_0')$ and $j_0 < j$.  
+  The induction hypothesis on $\Gamma \vdash e_0 : \tau_1 + \tau_2$ tells us $e_0' \in \mathcal{V}_{k-j_0} [\tau1 + \tau_2]$.  
+  Then $e_0' = inl~v$ or $e_0' = inr~v$.  
+  - **Case $e_0' = inl~v$** :  
+    By the evaluation rule [E-INL],  
+    $case~inl~v~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2) \mapsto_v^1 \gamma(e_1)[v/x_1]$.  
+    Suppose $\gamma(e_1)[v/x_1] \mapsto_v^{j_1} e_1'$ and $\irred(e_1')$.  
+    The induction hypothesis on $\Gamma, x_1: \tau_1 \vdash e_1 : \tau$ says $\gamma'(e_1) \in \mathcal{E}_k[\tau]$ for $\gamma' \in \mathcal{G}_k[\Gamma, x_1:\tau_1]$.  
+    By definition, $\gamma'(e_1) = \gamma(e_1)[v/x_1]$.  
+    So, $e_1' \in \mathcal{V}_{k-j_1}[\tau]$.  
+    Notice $e' = e_1'$.  
+    If we show $e_1' \in \mathcal{V}_{k-j}[\tau]$, we are done.  
+    Since $k-j < k-j_1$, the monotonicity lemma applied to $e_1' \in \mathcal{V}_{k-j_1}[\tau]$ gives us what we want, $e_1' \in \mathcal{V}_{k-j}[\tau]$.
+
+  - **Case $e_0' = inr~v$** :  
+    By the evaluation rule [E-INR],  
+    $case~inr~v~of~inl~x_1 \Rightarrow \gamma(e_1);~inr~x_2 \Rightarrow \gamma(e_2) \mapsto_v^1 \gamma(e_2)[v/x_2]$.  
+    Suppose $\gamma(e_2)[v/x_2] \mapsto_v^{j_2} e_2'$ and $\irred(e_2')$.  
+    The induction hypothesis on $\Gamma, x_2: \tau_2 \vdash e_2 : \tau$ says $\gamma'(e_2) \in \mathcal{E}_k[\tau]$ for $\gamma' \in \mathcal{G}_k[\Gamma, x_2:\tau_2]$.  
+    By definition, $\gamma'(e_2) = \gamma(e_2)[v/x_2]$.  
+    So, $e_2' \in \mathcal{V}_{k-j_2}[\tau]$.  
+    Notice $e' = e_2'$.  
+    If we show $e_2' \in \mathcal{V}_{k-j}[\tau]$, we are done.  
+    Since $k-j < k-j_2$, the monotonicity lemma applied to $e_2' \in \mathcal{V}_{k-j_2}[\tau]$ gives us what we want, $e_2' \in \mathcal{V}_{k-j}[\tau]$.
 
 
 + **Case $\frac{\Gamma \vdash e : \tau[\mu \alpha . \tau / \alpha]}{
@@ -370,7 +480,7 @@ We now prove 1 by induction on $\Gamma \vdash e~:~\tau$.
   Pick an arbitrary $m' < k-j$.  
   Since $m' < k-j_1 (= k-j)$, the monotonicity lemma applied to $v_1 \in \mathcal{V}_{k-j_1}[\tau [\mu \alpha. \tau]/ \alpha]]$ gives us $v_1 \in \mathcal{V}_{m'} [\tau [\mu \alpha. \tau]/ \alpha]]$.
 
-  + **Case $\frac{\Gamma \vdash e : \mu \alpha.\tau}{
++ **Case $\frac{\Gamma \vdash e : \mu \alpha.\tau}{
   \Gamma \vdash unfold~e : \tau[\mu \alpha.\tau / \alpha]}$** :
 
   Suppose $\Gamma \vdash unfold~e : \tau[\mu \alpha.\tau / \alpha]$.  
